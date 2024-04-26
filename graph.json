@@ -1,0 +1,20 @@
+{
+  "nodes": [
+    {"id": 0},
+    {"id": 1},
+    {"id": 2},
+    {"id": 3}
+  ],
+  "links": [
+    {"source": 0, "target": 1, "capacity": 5},
+    {"source": 0, "target": 2, "capacity": 5},
+    {"source": 1, "target": 0, "capacity": 0},
+    {"source": 1, "target": 2, "capacity": 1},
+    {"source": 1, "target": 3, "capacity": 5},
+    {"source": 2, "target": 0, "capacity": 0},
+    {"source": 2, "target": 1, "capacity": 0},
+    {"source": 2, "target": 3, "capacity": 4},
+    {"source": 3, "target": 1, "capacity": 0},
+    {"source": 3, "target": 2, "capacity": 0}
+  ]
+}
