@@ -18,21 +18,21 @@ using namespace std;
 
 // Structure to represent an edge
 struct Edge {
-    int to, capacity, flow, age; // Removed degradation, added age
-    float replacementScore; // Changed replacementScore type to float
+    int to, capacity, flow, age; 
+    float replacementScore;
     float probabilityBlocked; // Added probabilityBlocked
     Edge(int t, int c, int a) : to(t), capacity(c), flow(0), age(a) {
-        // Calculate replacementScore
-        replacementScore = static_cast<float>(age) * capacity;
-        // Calculate probability of being blocked
+        
+        replacementScore = (static_cast<float>(age)) * capacity;
+        
         probabilityBlocked = calculateProbabilityBlocked();
     }
 
     float calculateProbabilityBlocked() const {
-        // Adjust parameters as needed
-        float k = 0.1; // steepness of the curve
-        float x0 = 0; // midpoint of the curve
-        float L = 1; // maximum value of the curve
+        
+        float k = 0.1; 
+        float x0 = 0; 
+        float L = 1; 
         return L / (1 + exp(-k * (replacementScore - x0)));
     }
 
@@ -41,12 +41,12 @@ struct Edge {
 // Function to add an edge to the graph
 void addEdge(vector<vector<Edge>>& graph, int u, int v, int capacity, int age) {
     graph[u].push_back(Edge(v, capacity, age));
-    graph[v].push_back(Edge(u, 0, age)); // Adding the reverse edge with capacity 0
+    graph[v].push_back(Edge(u, 0, age)); 
 }
 
-// Comparison function to prioritize edge replacements
+
 bool compareEdges(const Edge& edge1, const Edge& edge2) {
-    // Prioritize by replacementScore
+    
     return edge1.replacementScore > edge2.replacementScore;
 }
 
@@ -64,10 +64,7 @@ void pipeReplacement(vector<vector<Edge>>& graph , int n){
 
 // Function to adjust flow rates using the MFIP algorithm
 void adjustFlowRates(vector<vector<Edge>>& graph, vector<vector<int>>& currentFlowRates) {
-    // Implement the MFIP algorithm here to adjust flow rates based on network conditions
-    // For simplicity, let's assume it adjusts flow rates based on some predetermined logic
-    // You can replace this with your actual MFIP implementation
-    // Here, we'll just set flow rates randomly
+
     int n = graph.size();
     for (int u = 0; u < n; ++u) {
         for (Edge& e : graph[u]) {
@@ -76,15 +73,7 @@ void adjustFlowRates(vector<vector<Edge>>& graph, vector<vector<int>>& currentFl
     }
 }
 
-// Function to update edge capacities based on the current flow rates
-void updateEdgeCapacity(vector<vector<Edge>>& graph, vector<vector<int>>& currentFlowRates) {
-    for (int u = 0; u < graph.size(); ++u) {
-        for (Edge& e : graph[u]) {
-            // Update edge capacity based on current flow rate
-            e.capacity -= currentFlowRates[u][e.to];
-        }
-    }
-}
+
 
 // Function to identify bottleneck edges
 void findBottleneckEdges(vector<vector<Edge>>& graph, int source, int sink, set<pair<int, int>>& bottlenecks) {
@@ -125,9 +114,8 @@ int fordFulkersonDynamicCapacity(vector<vector<Edge>>& graph, int source, int si
     int n = graph.size();
     int maxFlow = 0;
 
-    // Continuously find augmenting paths until no more paths can be found
     while (true) {
-        // BFS to find an augmenting path
+
         vector<int> parent(n, -1);
         queue<int> q;
         q.push(source);
@@ -145,11 +133,9 @@ int fordFulkersonDynamicCapacity(vector<vector<Edge>>& graph, int source, int si
             }
         }
 
-        // If no augmenting path exists, break
         if (parent[sink] == -1)
             break;
 
-        // Find the bottleneck capacity along the augmenting path
         int bottleneck = INT_MAX;
         vector<int> path;
         for (int v = sink; v != source; v = parent[v]) {
@@ -157,13 +143,12 @@ int fordFulkersonDynamicCapacity(vector<vector<Edge>>& graph, int source, int si
             for (Edge& e : graph[u]) {
                 if (e.to == v) {
                     bottleneck = min(bottleneck, e.capacity - e.flow);
-                    path.push_back(v); // Store the path for capacity adjustment (in reverse order)
+                    path.push_back(v); 
                     break;
                 }
             }
         }
 
-        // Reverse the path to print it in the correct order
         reverse(path.begin(), path.end());
 
         // Print augmented path
@@ -173,7 +158,6 @@ int fordFulkersonDynamicCapacity(vector<vector<Edge>>& graph, int source, int si
         }
         cout << sink << ", Flow: " << bottleneck << endl;
 
-        // Update flow along the augmenting path
         for (size_t i = 0; i < path.size() - 1; ++i) {
             int u = path[i];
             int v = path[i + 1];
@@ -185,16 +169,14 @@ int fordFulkersonDynamicCapacity(vector<vector<Edge>>& graph, int source, int si
             }
         }
 
-        // Update the total flow
         maxFlow += bottleneck;
 
-        // Adjust capacity of bottleneck edge(s)
+
         for (int u : path) {
             for (Edge& e : graph[u]) {
                 if (e.to == parent[u]) {
-                    // Increase capacity of bottleneck edge
                     e.capacity += bottleneck;
-                    // Print edge whose capacity increased
+                    // Print edge
                     cout << "Increased capacity of edge (" << u << ", " << e.to << ") to " << e.capacity << endl;
                     break;
                 }
@@ -203,9 +185,11 @@ int fordFulkersonDynamicCapacity(vector<vector<Edge>>& graph, int source, int si
     }
 
     return maxFlow;
+
+    
 }
 
-// Function to generate JSON representation of the graph
+
 void generateJSON(const vector<vector<Edge>>& graph) {
     ofstream jsonFile("graph.json");
     if (!jsonFile.is_open()) {
@@ -240,7 +224,7 @@ void generateJSON(const vector<vector<Edge>>& graph) {
     jsonFile.close();
 }
 
-// Modify generateJSON function to include augmented paths
+
 void generateJSONWithAugmentedPaths(const vector<vector<Edge>>& graph, const set<vector<int>>& augmentedPaths) {
     ofstream jsonFile("graph1.json");
     if (!jsonFile.is_open()) {
@@ -263,11 +247,10 @@ void generateJSONWithAugmentedPaths(const vector<vector<Edge>>& graph, const set
         for (size_t j = 0; j < graph[u].size(); ++j) {
             const Edge& e = graph[u][j];
             if (u > 0 || j > 0) {
-                jsonFile << ",\n"; // Add comma before each item except for the first one
+                jsonFile << ",\n"; 
             }
             jsonFile << "    {\"source\": " << u << ", \"target\": " << e.to << ", \"capacity\": " << e.capacity;
             bool isAugmented = false;
-            // Check if the edge is part of any augmented path
             for (const vector<int>& path : augmentedPaths) {
                 auto it = find(path.begin(), path.end(), u);
                 if (it != path.end() && it + 1 != path.end() && *(it + 1) == e.to) {
@@ -297,7 +280,7 @@ void generateJSONWithAugmentedPaths1(const vector<vector<Edge>>& graph, const se
     jsonFile << "  \"nodes\": [\n";
     for (int i = 0; i < graph.size(); ++i) {
         if (i > 0) {
-            jsonFile << ",\n"; // Add comma before each item except for the first one
+            jsonFile << ",\n";
         }
         jsonFile << "    {\"id\": " << i << "}";
     }
@@ -312,7 +295,7 @@ void generateJSONWithAugmentedPaths1(const vector<vector<Edge>>& graph, const se
             }
             jsonFile << "    {\"source\": " << u << ", \"target\": " << e.to << ", \"capacity\": " << e.capacity;
             bool isAugmented = false;
-            // Check if the edge is part of any augmented path
+
             for (const vector<int>& path : augmentedPaths) {
                 auto it = find(path.begin(), path.end(), u);
                 if (it != path.end() && it + 1 != path.end() && *(it + 1) == e.to) {
@@ -597,6 +580,7 @@ void callEdmondKarp(vector<vector<Edge>>& graph, int source, int sink, set<vecto
 void printProbablity(vector<vector<Edge>> graph){
     for (int u = 0; u < graph.size(); ++u) {
         for (const auto& edge : graph[u]) {
+            if(edge.probabilityBlocked != 0.5)
             cout << "Edge from " << u << " to " << edge.to << ", Probability of being blocked: " << edge.probabilityBlocked << endl;
         }
     }
@@ -620,9 +604,6 @@ int main() {
     set<vector<int>> augmentedPaths1; 
 
 
-    
-
-    // Prompt user for graph information
     
     // Read graph information from user input
     for (int i = 0; i < m; ++i) {
@@ -658,6 +639,8 @@ int main() {
         cout << "Enter your choice: ";
         cin >> option;
 
+        system(CLEAR_SCREEN); 
+
         if (option == 1) {
             if (option == 1) {
                 // Handle finding max flow
@@ -668,6 +651,8 @@ int main() {
                 cout << "3. Dinic" << endl;
                 cout << "Enter your choice: ";
                 cin >> algorithmChoice;
+
+
 
                 if (algorithmChoice == 1) {
                     // Call Ford-Fulkerson function
@@ -688,12 +673,12 @@ int main() {
             pipeReplacement(graph, n);
         } else if (option == 3) {
             // Handle finding apparent blocked pipes
-            // Call function to find apparent blocked pipes
+
             printProbablity(graph);
         } else if (option == 4) {
             // Handle MFIP
-            // Modify necessary function (fordFulkersonDynamicCapacity)
-            fordFulkersonDynamicCapacity(graph,source,sink);
+
+            cout << fordFulkersonDynamicCapacity(graph,source,sink);
         } else if (option == 5) {
             // Exit the program
             cout << "Exiting..." << endl;
